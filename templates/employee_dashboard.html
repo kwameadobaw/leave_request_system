@@ -1,0 +1,151 @@
+{% extends "base.html" %}
+
+{% block title %}Employee Dashboard - Leave Request System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-tachometer-alt"></i> Employee Dashboard</h1>
+        <p>Welcome back, <strong>{{ employee_name }}</strong>!</p>
+    </div>
+    
+    <div class="dashboard-grid">
+        <!-- New Request Form -->
+        <div class="card new-request-card">
+            <div class="card-header">
+                <h2><i class="fas fa-plus-circle"></i> Submit New Request</h2>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('submit_request') }}" class="request-form">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start_date">
+                                <i class="fas fa-calendar-alt"></i>
+                                Start Date
+                            </label>
+                            <input type="date" id="start_date" name="start_date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="end_date">
+                                <i class="fas fa-calendar-alt"></i>
+                                End Date
+                            </label>
+                            <input type="date" id="end_date" name="end_date" required>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="start_time">
+                                <i class="fas fa-clock"></i>
+                                Start Time
+                            </label>
+                            <input type="time" id="start_time" name="start_time" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="end_time">
+                                <i class="fas fa-clock"></i>
+                                End Time
+                            </label>
+                            <input type="time" id="end_time" name="end_time" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="reason">
+                            <i class="fas fa-comment"></i>
+                            Reason for Leave
+                        </label>
+                        <textarea id="reason" name="reason" rows="4" required 
+                                placeholder="Please provide a detailed reason for your leave request..."></textarea>
+                    </div>
+                    <button type="submit" class="submit-btn">
+                        <i class="fas fa-paper-plane"></i>
+                        Submit Request
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Request History -->
+        <div class="card history-card">
+            <div class="card-header">
+                <h2><i class="fas fa-history"></i> Your Request History</h2>
+            </div>
+            <div class="card-body">
+                {% if requests %}
+                    <div class="requests-list">
+                        {% for request in requests %}
+                        <div class="request-item {{ request.status }}">
+                            <div class="request-header">
+                                <div class="request-id">
+                                    <i class="fas fa-hashtag"></i>
+                                    Request #{{ request.id }}
+                                </div>
+                                <div class="request-status status-{{ request.status }}">
+                                    {% if request.status == 'pending' %}
+                                        <i class="fas fa-clock"></i> Pending
+                                    {% elif request.status == 'approved' %}
+                                        <i class="fas fa-check-circle"></i> Approved
+                                    {% elif request.status == 'rejected' %}
+                                        <i class="fas fa-times-circle"></i> Rejected
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="request-details">
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-calendar"></i> Duration:
+                                    </span>
+                                    <span class="detail-value">
+                                        {{ request.start_date }} to {{ request.end_date }}
+                                        {% if request.start_time and request.end_time %}
+                                        <br><i class="fas fa-clock"></i> {{ request.start_time }} to {{ request.end_time }}
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-comment"></i> Reason:
+                                    </span>
+                                    <span class="detail-value">{{ request.reason }}</span>
+                                </div>
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-clock"></i> Submitted:
+                                    </span>
+                                    <span class="detail-value">{{ request.submitted_date }}</span>
+                                </div>
+                                {% if request.manager_comment %}
+                                <div class="detail-row">
+                                    <span class="detail-label">
+                                        <i class="fas fa-user-tie"></i> Manager Comment:
+                                    </span>
+                                    <span class="detail-value manager-comment">{{ request.manager_comment }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                            {% if request.status in ['approved', 'rejected'] %}
+                            <div class="request-actions">
+                                <a href="{{ url_for('download_request_pdf', request_id=request.id) }}" class="download-btn">
+                                    <i class="fas fa-download"></i> Download PDF
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-requests">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Requests Yet</h3>
+                        <p>You haven't submitted any leave requests. Use the form on the left to submit your first request.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/employee.js') }}"></script>
+{% endblock %}

@@ -1,0 +1,23 @@
+{
+  "employees": {
+    "john": {
+      "name": "John Doe",
+      "password": "john123",
+      "requests": []
+    },
+    "jane": {
+      "name": "Jane Smith",
+      "password": "jane123",
+      "requests": []
+    },
+    "bob": {
+      "name": "Bob Johnson",
+      "password": "bob123",
+      "requests": []
+    }
+  },
+  "requests": [
+    
+  ],
+  "next_request_id": 3
+}

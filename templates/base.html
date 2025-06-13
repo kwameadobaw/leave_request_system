@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Leave Request System{% endblock %}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='css/style.css') }}"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="container">
+      {% if session.user_type %}
+      <nav class="navbar">
+        <div class="nav-brand">
+          <i class="fas fa-calendar-alt"></i>
+          <span>Leave Request System</span>
+        </div>
+        <div class="nav-menu">
+          {% if session.user_type == 'employee' %}
+          <span class="nav-user"
+            ><i class="fas fa-user"></i> {{ session.username }}</span
+          >
+          {% elif session.user_type == 'manager' %}
+          <span class="nav-user"><i class="fas fa-user-tie"></i> Manager</span>
+          {% elif session.user_type == 'security' %}
+          <span class="nav-user"
+            ><i class="fas fa-shield-alt"></i> Security</span
+          >
+          {% endif %}
+          <a href="{{ url_for('logout') }}" class="logout-btn">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
+        </div>
+      </nav>
+      {% endif %}
+
+      <main class="main-content">
+        {% with messages = get_flashed_messages() %} {% if messages %}
+        <div class="flash-messages">
+          {% for message in messages %}
+          <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            {{ message }}
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %} {% endwith %} {% block content %}{% endblock %}
+      </main>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+
+{% block title %}Manager Dashboard - Leave Request System{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1><i class="fas fa-user-tie"></i> Manager Dashboard</h1>
+        <p>Review and manage employee leave requests</p>
+    </div>
+    
+    <div class="dashboard-tabs">
+        <button class="tab-btn active" onclick="showManagerTab('pending')">
+            <i class="fas fa-clock"></i>
+            Pending Requests ({{ pending_requests|length }})
+        </button>
+        <button class="tab-btn" onclick="showManagerTab('all')">
+            <i class="fas fa-list"></i>
+            All Requests ({{ all_requests|length }})
+        </button>
+    </div>
+    
+    <!-- Pending Requests Tab -->
+    <div id="pending-tab" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-clock"></i> Pending Requests</h2>
+            </div>
+            <div class="card-body">
+                {% if pending_requests %}
+                    <div class="requests-grid">
+                        {% for request in pending_requests %}
+                        <div class="request-card pending">
+                            <div class="request-header">
+                                <div class="employee-info">
+                                    <i class="fas fa-user"></i>
+                                    <strong>{{ request.username }}</strong>
+                                </div>
+                                <div class="request-id">
+                                    #{{ request.id }}
+                                </div>
+                            </div>
+                            <div class="request-details">
+                                <div class="detail-item">
+                                    <i class="fas fa-calendar"></i>
+                                    <span>{{ request.start_date }} to {{ request.end_date }}</span>
+                                    {% if request.start_time and request.end_time %}
+                                    <br><i class="fas fa-clock"></i> {{ request.start_time }} to {{ request.end_time }}
+                                    {% endif %}
+                                </div>
+                                <div class="detail-item">
+                                    <i class="fas fa-clock"></i>
+                                    <span>Submitted: {{ request.submitted_date }}</span>
+                                </div>
+                                <div class="detail-item reason">
+                                    <i class="fas fa-comment"></i>
+                                    <span>{{ request.reason }}</span>
+                                </div>
+                            </div>
+                            <div class="request-actions">
+                                <form method="POST" action="{{ url_for('update_request_status') }}" class="action-form">
+                                    <input type="hidden" name="request_id" value="{{ request.id }}">
+                                    <div class="comment-section">
+                                        <textarea name="comment" placeholder="Add a comment (optional)..." rows="2"></textarea>
+                                    </div>
+                                    <div class="action-buttons">
+                                        <button type="submit" name="status" value="approved" class="approve-btn">
+                                            <i class="fas fa-check"></i> Approve
+                                        </button>
+                                        <button type="submit" name="status" value="rejected" class="reject-btn">
+                                            <i class="fas fa-times"></i> Reject
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="no-requests">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>No Pending Requests</h3>
+                        <p>All requests have been reviewed. Great job!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- All Requests Tab -->
+    <div id="all-tab" class="tab-content">
+        <div class="card">
+            <div class="card-header">
+                <h2><i class="fas fa-list"></i> All Requests</h2>
+            </div>
+            <div class="card-body">
+                {% if all_requests %}
+                    <div class="requests-table">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Employee</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                    <th>Comment</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in all_requests %}
+                                <tr class="status-{{ request.status }}">
+                                    <td>#{{ request.id }}</td>
+                                    <td>
+                                        <i class="fas fa-user"></i>
+                                        {{ request.username }}
+                                    </td>
+                                    <td>{{ request.start_date }}</td>
+                                    <td>{{ request.end_date }}</td>
+                                    <td class="reason-cell">{{ request.reason }}</td>
+                                    <td>
+                                        <span class="status-badge status-{{ request.status }}">
+                                            {% if request.status == 'pending' %}
+                                                <i class="fas fa-clock"></i> Pending
+                                            {% elif request.status == 'approved' %}
+                                                <i class="fas fa-check-circle"></i> Approved
+                                            {% elif request.status == 'rejected' %}
+                                                <i class="fas fa-times-circle"></i> Rejected
+                                            {% endif %}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.submitted_date }}</td>
+                                    <td class="comment-cell">{{ request.manager_comment or '-' }}</td>
+                                    <td class="actions-cell">
+                                        {% if request.status in ['approved', 'rejected'] %}
+                                        <a href="{{ url_for('download_request_pdf', request_id=request.id) }}" class="download-btn-small">
+                                            <i class="fas fa-download"></i> PDF
+                                        </a>
+                                        {% else %}
+                                        -
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="no-requests">
+                        <i class="fas fa-inbox"></i>
+                        <h3>No Requests</h3>
+                        <p>No leave requests have been submitted yet.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/manager.js') }}"></script>
+{% endblock %}

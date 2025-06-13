@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Leave Request System{% endblock %}
+
+{% block content %}
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="logo">
+                <i class="fas fa-calendar-check"></i>
+            </div>
+            <h1>Leave Request System</h1>
+            <p>Please select your login type</p>
+        </div>
+        
+        <div class="login-tabs">
+            <button class="tab-btn active" onclick="showTab('employee')">
+                <i class="fas fa-user"></i>
+                Employee
+            </button>
+            <button class="tab-btn" onclick="showTab('manager')">
+                <i class="fas fa-user-tie"></i>
+                Manager
+            </button>
+            <button class="tab-btn" onclick="showTab('security')">
+                <i class="fas fa-shield-alt"></i>
+                Security
+            </button>
+        </div>
+        
+        <!-- Employee Login -->
+        <div id="employee-tab" class="tab-content active">
+            <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                <input type="hidden" name="user_type" value="employee">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="fas fa-user"></i>
+                        Username
+                    </label>
+                    <input type="text" id="username" name="username" required 
+                           placeholder="Enter your username">
+                </div>
+                <div class="form-group">
+                    <label for="employee-password">
+                        <i class="fas fa-lock"></i>
+                        Password
+                    </label>
+                    <input type="password" id="employee-password" name="password" required 
+                           placeholder="Enter your password">
+                </div>
+                <button type="submit" class="login-btn employee-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login as Employee
+                </button>
+            </form>
+        </div>
+        
+        <!-- Manager Login -->
+        <div id="manager-tab" class="tab-content">
+            <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                <input type="hidden" name="user_type" value="manager">
+                <div class="form-group">
+                    <label for="manager-password">
+                        <i class="fas fa-lock"></i>
+                        Manager Password
+                    </label>
+                    <input type="password" id="manager-password" name="password" required 
+                           placeholder="Enter manager password">
+                </div>
+                <button type="submit" class="login-btn manager-btn">
+                    <i class="fas fa-user-tie"></i>
+                    Login as Manager
+                </button>
+                <div class="password-hint">
+                    <i class="fas fa-info-circle"></i>
+                    <!-- Password: Manager123 -->
+                </div>
+            </form>
+        </div>
+        
+        <!-- Security Login -->
+        <div id="security-tab" class="tab-content">
+            <form method="POST" action="{{ url_for('login') }}" class="login-form">
+                <input type="hidden" name="user_type" value="security">
+                <div class="form-group">
+                    <label for="security-password">
+                        <i class="fas fa-lock"></i>
+                        Security Password
+                    </label>
+                    <input type="password" id="security-password" name="password" required 
+                           placeholder="Enter security password">
+                </div>
+                <button type="submit" class="login-btn security-btn">
+                    <i class="fas fa-shield-alt"></i>
+                    Login as Security
+                </button>
+                <div class="password-hint">
+                    <i class="fas fa-info-circle"></i>
+                    <!-- Password: Security123 -->
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/login.js') }}"></script>
+{% endblock %}
