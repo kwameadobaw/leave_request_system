@@ -16,18 +16,31 @@ app.secret_key = 'your-secret-key-here'
 DATA_FILE = 'data.json'
 
 def load_data():
-    if os.path.exists(DATA_FILE):
-        with open(DATA_FILE, 'r') as f:
-            return json.load(f)
-    return {
-        'employees': {},
-        'requests': [],
-        'next_request_id': 1
-    }
+    try:
+        if os.path.exists(DATA_FILE):
+            print(f"Loading data from {DATA_FILE}")
+            with open(DATA_FILE, 'r') as f:
+                data = json.load(f)
+                print(f"Data loaded successfully: {str(data)[:200]}...")
+                return data
+        else:
+            print(f"Data file {DATA_FILE} not found, creating new data structure")
+            return {
+                'employees': {},
+                'requests': [],
+                'next_request_id': 1
+            }
+    except Exception as e:
+        print(f"Error loading data: {str(e)}")
+        raise
 
 def save_data(data):
-    with open(DATA_FILE, 'w') as f:
-        json.dump(data, f, indent=2)
+    try:
+        with open(DATA_FILE, 'w') as f:
+            json.dump(data, f, indent=2)
+    except Exception as e:
+        print(f"Error saving data: {str(e)}")
+        raise
 
 @app.route('/')
 def index():
@@ -129,30 +142,42 @@ def security_dashboard():
 
 @app.route('/submit_request', methods=['POST'])
 def submit_request():
-    if 'username' not in session or session.get('user_type') != 'employee':
-        return redirect(url_for('index'))
-    
-    data = load_data()
-    
-    new_request = {
-        'id': data['next_request_id'],
-        'username': session['username'],
-        'start_date': request.form.get('start_date'),
-        'end_date': request.form.get('end_date'),
-        'start_time': request.form.get('start_time'),
-        'end_time': request.form.get('end_time'),
-        'reason': request.form.get('reason'),
-        'status': 'pending',
-        'submitted_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-        'manager_comment': ''
-    }
-    
-    data['requests'].append(new_request)
-    data['next_request_id'] += 1
-    save_data(data)
-    
-    flash('Request submitted successfully!')
-    return redirect(url_for('employee_dashboard'))
+    try:
+        if 'username' not in session or session.get('user_type') != 'employee':
+            return redirect(url_for('index'))
+        
+        data = load_data()
+        
+        # Validate form data
+        required_fields = ['start_date', 'end_date', 'start_time', 'end_time', 'reason']
+        for field in required_fields:
+            if not request.form.get(field):
+                flash(f'Error: {field.replace("_", " ").title()} is required')
+                return redirect(url_for('employee_dashboard'))
+        
+        new_request = {
+            'id': data['next_request_id'],
+            'username': session['username'],
+            'start_date': request.form.get('start_date'),
+            'end_date': request.form.get('end_date'),
+            'start_time': request.form.get('start_time'),
+            'end_time': request.form.get('end_time'),
+            'reason': request.form.get('reason'),
+            'status': 'pending',
+            'submitted_date': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'manager_comment': ''
+        }
+        
+        data['requests'].append(new_request)
+        data['next_request_id'] += 1
+        save_data(data)
+        
+        flash('Request submitted successfully!')
+        return redirect(url_for('employee_dashboard'))
+    except Exception as e:
+        print(f"Error submitting request: {str(e)}")
+        flash('An error occurred while submitting your request. Please try again.')
+        return redirect(url_for('employee_dashboard'))
 
 @app.route('/update_request_status', methods=['POST'])
 def update_request_status():
