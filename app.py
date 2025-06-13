@@ -293,5 +293,8 @@ def logout():
     session.clear()
     return redirect(url_for('index'))
 
+# For Vercel deployment
+app = app
+
 if __name__ == '__main__':
     app.run(debug=True)
